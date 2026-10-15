@@ -1,0 +1,7 @@
+{
+    "project": "CrystalSeekers_Narrative_Engine_V1",
+    "type": "crystalseekers_game",
+    "prime_bus": "KATZOS_SOVEREIGN_AUDIO_V1.>",
+    "vram_lock": true,
+    "author": "Kaitlyn Asbury (KatzKode89)"
+}

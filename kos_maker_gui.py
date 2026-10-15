@@ -1,7 +1,6 @@
 ﻿import sys
 import os
 import json
-import threading
 import http.server
 import socketserver
 import webbrowser
@@ -31,13 +30,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class='container'>
         <div class='form-group'>
             <label>Project Name:</label>
-            <input type='text' id='projName' value='CrystalSeekers_Module_01'>
+            <input type='text' id='projName' value='CrystalSeekers_Narrative_Engine_V1'>
         </div>
         <div class='form-group'>
             <label>Architecture Target:</label>
             <select id='projType'>
                 <option value='katzos_app'>KatzOS Sovereign App Module</option>
-                <option value='crystalseekers_game'>CrystalSeekers Unity/Godot Asset Package</option>
+                <option value='crystalseekers_game' selected>CrystalSeekers Unity/Godot Asset Package</option>
                 <option value='katztunez_synth'>KatzTunez 135 BPM Audio Plugin</option>
                 <option value='truexr_hud'>TrueXR 90 FPS Spatial HUD Overlay</option>
             </select>
@@ -61,20 +60,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const bus = document.getElementById('primeBus').value;
             const log = document.getElementById('log');
 
-            log.innerText += \n[INFO] Initializing generation for  [Type: ]...;
+            log.innerText += "\\n[INFO] Initializing generation for " + name + " [Type: " + type + "]...";
 
             fetch('/api/scaffold', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: name, type: type, bus: bus })
             })
-            .then(res => res.json())
-            .then(data => {
-                log.innerText += \n[SUCCESS] \n[PATH] ;
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                log.innerText += "\\n[SUCCESS] " + data.message + "\\n[PATH] " + data.path;
                 log.scrollTop = log.scrollHeight;
             })
-            .catch(err => {
-                log.innerText += \n[ERROR] Scaffolding failed: ;
+            .catch(function(err) {
+                log.innerText += "\\n[ERROR] Scaffolding failed: " + err;
                 log.scrollTop = log.scrollHeight;
             });
         }
@@ -95,45 +94,48 @@ class KOSHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == '/api/scaffold':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
+            try:
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
 
-            proj_name = data.get('name', 'NewProject')
-            proj_type = data.get('type', 'katzos_app')
+                proj_name = data.get('name', 'NewProject')
+                proj_type = data.get('type', 'katzos_app')
 
-            target_dir = os.path.join("C:\\KatzOS", proj_name)
-            os.makedirs(target_dir, exist_ok=True)
+                target_dir = os.path.join("C:\\KatzOS", proj_name)
+                os.makedirs(target_dir, exist_ok=True)
 
-            manifest = {
-                "project": proj_name,
-                "type": proj_type,
-                "prime_bus": data.get('bus'),
-                "vram_lock": True,
-                "author": "Kaitlyn Asbury (KatzKode89)"
-            }
+                manifest = {
+                    "project": proj_name,
+                    "type": proj_type,
+                    "prime_bus": data.get('bus'),
+                    "vram_lock": True,
+                    "author": "Kaitlyn Asbury (KatzKode89)"
+                }
 
-            with open(os.path.join(target_dir, "kos_manifest.json"), "w") as f:
-                json.dump(manifest, f, indent=4)
+                with open(os.path.join(target_dir, "kos_manifest.json"), "w") as f:
+                    json.dump(manifest, f, indent=4)
 
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            response = {
-                "status": "compiled",
-                "message": f"Successfully generated {proj_name} framework.",
-                "path": target_dir
-            }
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+                self.send_response(200)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                response = {
+                    "status": "compiled",
+                    "message": f"Successfully generated {proj_name} framework.",
+                    "path": target_dir
+                }
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                print(f"[KOS-MAKER] Successfully scaffolded: {proj_name} at {target_dir}")
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                err_resp = {"status": "error", "message": str(e), "path": ""}
+                self.wfile.write(json.dumps(err_resp).encode('utf-8'))
+                print(f"[ERROR] Scaffold failed: {e}")
 
-def run_server():
+if __name__ == '__main__':
     os.chdir(DIRECTORY)
     with socketserver.TCPServer(("", PORT), KOSHandler) as httpd:
         print(f"[KOS-MAKER GUI] Active at http://localhost:{PORT}")
         httpd.serve_forever()
-
-if __name__ == '__main__':
-    server_thread = threading.Thread(target=run_server, daemon=True)
-    server_thread.start()
-    webbrowser.open(f"http://localhost:{PORT}")
-    server_thread.join()
