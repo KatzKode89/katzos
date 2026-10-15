@@ -1,0 +1,9 @@
+{
+    "symbol": "CRYSTAL_NODE_01",
+    "pua_hex": "0xe000",
+    "payload": {
+        "resonance": 135.0,
+        "vram_lock": true
+    },
+    "status": "serialized"
+}
