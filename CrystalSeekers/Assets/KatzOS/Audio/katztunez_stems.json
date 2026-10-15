@@ -1,0 +1,30 @@
+{
+    "project": "CrystalSeekers_Audio_Pipeline",
+    "engine": "KatzTunez",
+    "bpm": 135.0,
+    "key": "D Minor",
+    "prime_bus": "KATZOS_SOVEREIGN_AUDIO_V1.>",
+    "stems": [
+        {
+            "name": "Sub_Bass_01.wav",
+            "frequency": 67.5,
+            "active": true
+        },
+        {
+            "name": "Crystal_Lead_Synth.wav",
+            "frequency": 540.0,
+            "active": true
+        },
+        {
+            "name": "Atmospheric_Pad_Dmin.wav",
+            "frequency": 135.0,
+            "active": true
+        },
+        {
+            "name": "Sovereign_Percussion.wav",
+            "frequency": 135.0,
+            "active": true
+        }
+    ],
+    "vram_lock": true
+}
