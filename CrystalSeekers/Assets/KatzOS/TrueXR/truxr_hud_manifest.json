@@ -1,0 +1,13 @@
+﻿{
+    \"project\": \"TrueXR_Spatial_HUD_Overlay\",
+    \"version\": \"0.9.3-prime\",
+    \"target_framerate\": 90.0,
+    \"compositor\": \"OpenXR\",
+    \"prime_bus\": \"KATZOS_SOVEREIGN_AUDIO_V1.>\",
+    \"vram_lock\": true,
+    \"hud_elements\": [
+        {\"name\": \"Frequency_Monitor\", \"refresh_hz\": 90},
+        {\"name\": \"Stem_Waveform_Display\", \"refresh_hz\": 90},
+        {\"name\": \"Telemetry_Ticker\", \"refresh_hz\": 45}
+    ]
+}
